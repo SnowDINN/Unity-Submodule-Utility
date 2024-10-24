@@ -32,4 +32,11 @@
 		public static T GetPlayerPrefs<T>(this T value, string key) where T : class =>
 			Database.Load<T>(key);
 	}
+	
+	public static class CryptographyExtension
+	{
+		private static readonly DatabaseCryptography cryptography = new();
+		public static string Encryption(this string value) => cryptography.Encryption(value);
+		public static string Decryption(this string value) => cryptography.Decryption(value);
+	}
 }

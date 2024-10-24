@@ -1,25 +1,36 @@
 ﻿using System;
 using System.Security.Cryptography;
 using System.Text;
+using UnityEngine;
 
 namespace Redbean
 {
 	public class DatabaseCryptography
 	{
-		private readonly string SecurityKey;
 		private const int byteIndex = 16;
-
 		private readonly Aes Aes;
 
-		public DatabaseCryptography(string securityKey)
+		public DatabaseCryptography()
 		{
 			Aes = Aes.Create();
 			Aes.Mode = CipherMode.CBC;
 			Aes.Padding = PaddingMode.PKCS7;
 			Aes.KeySize = 128;
 			Aes.BlockSize = 128;
+		}
 
-			SecurityKey = securityKey;
+		private string md5Key
+		{
+			get
+			{
+				const string key = "Cryptography Key";
+
+				if (!PlayerPrefs.HasKey(key))
+					PlayerPrefs.SetString(key, CodeCreate(8));
+				
+				return PlayerPrefs.GetString(key);
+
+			}
 		}
 
 		private string key
@@ -27,7 +38,7 @@ namespace Redbean
 			get
 			{
 				var md5 = MD5.Create();
-				var result = md5.ComputeHash(Encoding.UTF8.GetBytes(SecurityKey));
+				var result = md5.ComputeHash(Encoding.UTF8.GetBytes(md5Key));
 
 				return Encoding.UTF8.GetString(result);
 			}
@@ -69,12 +80,36 @@ namespace Redbean
 			var decryptedString = Aes.CreateDecryptor().TransformFinalBlock(fromBase64String, 0, fromBase64String.Length);
 			return Encoding.UTF8.GetString(decryptedString);
 		}
-	}
-	
-	public static class SecurityExtension
-	{
-		private static readonly DatabaseCryptography AES128 = new("redbean.boongsin");
-		public static string Encryption(this string value) => AES128.Encryption(value);
-		public static string Decryption(this string value) => AES128.Decryption(value);
+
+		private string CodeCreate(int length)
+		{
+			const string combineCode = "ABCDEFGHIJKLMNPQRSTUVWXYZ123456789";
+			
+			var max = Math.Max(1, Math.Min(length, 128));
+			var floor = Mathf.FloorToInt(255.0f / combineCode.Length) * combineCode.Length;
+			if (floor <= 0)
+				return null;
+
+			var stringBuilder = new StringBuilder();
+			using (var provider = new RNGCryptoServiceProvider()) 
+			{
+				while (stringBuilder.Length != max) 
+				{
+					var bytes = new byte[8];
+					provider.GetBytes(bytes);
+					
+					foreach (var b in bytes) 
+					{
+						if (b >= floor || stringBuilder.Length == max) 
+							continue;
+						
+						var character = combineCode[b % combineCode.Length];
+						stringBuilder.Append(character);
+					}
+				}
+			}
+			
+			return stringBuilder.ToString();
+		}
 	}
 }
