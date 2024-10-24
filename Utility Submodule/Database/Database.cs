@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 using Newtonsoft.Json;
-using Redbean.Security;
 using UnityEngine;
 
-namespace Redbean.Utility
+namespace Redbean
 {
 	public class Database
 	{

@@ -2,7 +2,7 @@
 using System.Security.Cryptography;
 using System.Text;
 
-namespace Redbean.Security
+namespace Redbean
 {
 	public class DatabaseCryptography
 	{
