@@ -8,15 +8,15 @@ namespace Redbean
 	public class DatabaseCryptography
 	{
 		private const int byteIndex = 16;
-		private readonly Aes Aes;
+		private readonly Aes aes;
 
 		public DatabaseCryptography()
 		{
-			Aes = Aes.Create();
-			Aes.Mode = CipherMode.CBC;
-			Aes.Padding = PaddingMode.PKCS7;
-			Aes.KeySize = 128;
-			Aes.BlockSize = 128;
+			aes = Aes.Create();
+			aes.Mode = CipherMode.CBC;
+			aes.Padding = PaddingMode.PKCS7;
+			aes.KeySize = 128;
+			aes.BlockSize = 128;
 		}
 
 		private string md5Key
@@ -29,7 +29,6 @@ namespace Redbean
 					PlayerPrefs.SetString(key, CodeCreate(8));
 				
 				return PlayerPrefs.GetString(key);
-
 			}
 		}
 
@@ -54,10 +53,10 @@ namespace Redbean
 				count = keyBytes.Length;
 			Array.Copy(sourceArray, keyBytes, count);
 			
-			Aes.Key = keyBytes;
-			Aes.IV = keyBytes;
+			aes.Key = keyBytes;
+			aes.IV = keyBytes;
 			
-			var encryptor = Aes.CreateEncryptor();
+			var encryptor = aes.CreateEncryptor();
 			var buffer = Encoding.UTF8.GetBytes(text);
 
 			return Convert.ToBase64String(encryptor.TransformFinalBlock(buffer, 0, buffer.Length));
@@ -74,10 +73,10 @@ namespace Redbean
 				count = keyBytes.Length;
 			Array.Copy(sourceArray, keyBytes, count);
 			
-			Aes.Key = keyBytes;
-			Aes.IV = keyBytes;
+			aes.Key = keyBytes;
+			aes.IV = keyBytes;
 			
-			var decryptedString = Aes.CreateDecryptor().TransformFinalBlock(fromBase64String, 0, fromBase64String.Length);
+			var decryptedString = aes.CreateDecryptor().TransformFinalBlock(fromBase64String, 0, fromBase64String.Length);
 			return Encoding.UTF8.GetString(decryptedString);
 		}
 
